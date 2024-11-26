@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AccountType {
+  OAUTH_ACCOUNT
+  LOCAL_ACCOUNT
+}
+
+model User {
+  id          String      @id @unique @db.Uuid
+  firstName   String      @db.VarChar(40)
+  lastName    String      @db.VarChar(40)
+  email       String      @unique @db.VarChar(50)
+  password    String?     @db.VarChar(70)
+  phoneNumber String?     @unique @db.VarChar(20)
+  checked     Boolean     @default(false)
+  accountType AccountType
+
+  profile    Profile?
+  authCache  AuthCache?
+  activities Activity[]
+}
+
+enum Status {
+  ONLINE
+  OFFLINE
+}
+
+model Profile {
+  id           Int       @id @default(autoincrement())
+  photoUrl     String?
+  status       Status
+  bio          String?   @db.Text
+  lastOnlineAt DateTime?
+
+  userId String @unique @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuthCache {
+  id        Int     @id @default(autoincrement())
+  hashedRt  String? @db.Text
+  hashedVt  String? @db.Text
+  hashedOtp Int?
+
+  userId String @unique @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum ActivityType {
+  LOGIN
+  LOGOUT
+  PASSWORD_CHANGE
+}
+
+model Activity {
+  id      Int          @id @default(autoincrement())
+  type    ActivityType
+  date    DateTime     @default(now())
+  ip      String
+  device  String
+  os      String
+  success Boolean      @default(true)
+
+  userId String? @db.Uuid
+  user   User?   @relation(fields: [userId], references: [id])
+}

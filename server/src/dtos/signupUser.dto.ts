@@ -21,8 +21,4 @@ export class SignupUserDto {
     @Length(8, 12)
     @Matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{8,12}$/)
     password: string;
-
-    @IsString()
-    @Length(8,20)
-    phoneNumber: string;
 }

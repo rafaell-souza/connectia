@@ -63,7 +63,6 @@ model Activity {
   id      Int          @id @default(autoincrement())
   type    ActivityType
   date    DateTime     @default(now())
-  ip      String
   device  String
   os      String
   success Boolean      @default(true)

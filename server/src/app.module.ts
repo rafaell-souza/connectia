@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from './modules/prisma/prisma.module';
+import { PrismaModule } from './utils/prisma/prisma.module';
+import { JwtModule } from './utils/jwt/jwt.module';
+import { Hashmodule } from './utils/hashing/hash.module';
+import { MailerModule } from './utils/mailer/mailer.module';
 
 @Module({
-  imports: [PrismaModule],
-  controllers: [],
+  imports: [PrismaModule, MailerModule, Hashmodule, JwtModule],
 })
-export class AppModule {}
+export class AppModule { }

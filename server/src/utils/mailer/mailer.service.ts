@@ -1,8 +1,8 @@
-import path from "path";
+import * as path from "path";
 import { transporter } from "./config";
-import { Injectable } from "@nestjs/common";
+import { BadGatewayException, BadRequestException, Injectable } from "@nestjs/common";
 import hbs from "handlebars";
-import fs from 'fs';
+import * as fs from 'fs';
 import { IMailSend } from "src/interface/IMailSend";
 
 @Injectable()
@@ -11,7 +11,7 @@ export class MailerService {
         const filePath = path.join(__dirname, 'templates', `${templateName}.hbs`);
 
         if (!fs.existsSync(filePath))
-            throw new Error(`Template ${templateName}.hbs not found`)
+            throw new BadRequestException(`Template ${templateName}.hbs not found`)
 
         const templateSource = fs.readFileSync(filePath, 'utf-8');
         return hbs.compile(templateSource);
@@ -31,9 +31,11 @@ export class MailerService {
                 subject: data.subject,
                 html: htmlContent
             })
+
         } catch (err) {
-            console.log(err);
-            throw new Error("Server couldn't send you the email due to missconfiguration or another issue")
+            if (err instanceof BadRequestException)
+                console.error({ msg: err.message });
+            else throw new BadGatewayException("Email sending failed unexpectedly")
         }
     }
 }

@@ -1,4 +1,4 @@
-import { Hashservice } from "src/utils/hash.service"
+import { Hashservice } from "src/utils/hashing/hash.service"
 
 describe("hashService", () => {
     let hashService: Hashservice;

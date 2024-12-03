@@ -1,5 +1,5 @@
 import { UnauthorizedException } from "@nestjs/common";
-import { JwtService } from "src/utils/jwt.service";
+import { JwtService } from "src/utils/jwt/jwt.service";
 
 describe("jwtService - methods", () => {
     let jwtService: JwtService;

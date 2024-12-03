@@ -5,11 +5,9 @@ import { format } from "date-fns";
 
 @Injectable()
 export class JwtService {
-    constructor(
-        private readonly refresh_key = process.env.JWT_REFRESH_KEY,
-        private readonly access_key = process.env.JWT_ACCESS_KEY,
-        private readonly verification_key = process.env.JWT_VERIFICATION_KEY
-    ) { }
+    private readonly refresh_key = process.env.JWT_REFRESH_KEY
+    private readonly access_key = process.env.JWT_ACCESS_KEY
+    private readonly verification_key = process.env.JWT_VERIFICATION_KEY
 
     createAccessToken(
         userId: string,

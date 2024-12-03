@@ -13,18 +13,16 @@ enum AccountType {
 }
 
 model User {
-  id          String      @id @unique @db.Uuid
+  id          String      @id @unique @db.VarChar(36)
   firstName   String      @db.VarChar(40)
   lastName    String      @db.VarChar(40)
   email       String      @unique @db.VarChar(50)
   password    String?     @db.VarChar(70)
-  phoneNumber String?     @unique @db.VarChar(20)
   checked     Boolean     @default(false)
   accountType AccountType
 
-  profile    Profile?
-  authCache  AuthCache?
-  activities Activity[]
+  profile   Profile?
+  authCache AuthCache?
 }
 
 enum Status {
@@ -39,34 +37,15 @@ model Profile {
   bio          String?   @db.Text
   lastOnlineAt DateTime?
 
-  userId String @unique @db.Uuid
+  userId String @unique @db.VarChar(36)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AuthCache {
-  id        Int     @id @default(autoincrement())
-  hashedRt  String? @db.Text
-  hashedVt  String? @db.Text
-  hashedOtp Int?
+  id       Int     @id @default(autoincrement())
+  hashedRt String? @db.Text
+  hashedVt String? @db.Text
 
-  userId String @unique @db.Uuid
+  userId String @unique @db.VarChar(36)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-enum ActivityType {
-  LOGIN
-  LOGOUT
-  PASSWORD_CHANGE
-}
-
-model Activity {
-  id      Int          @id @default(autoincrement())
-  type    ActivityType
-  date    DateTime     @default(now())
-  device  String
-  os      String
-  success Boolean      @default(true)
-
-  userId String? @db.Uuid
-  user   User?   @relation(fields: [userId], references: [id])
 }

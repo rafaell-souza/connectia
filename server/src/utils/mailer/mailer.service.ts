@@ -9,7 +9,7 @@ import { format } from "date-fns";
 @Injectable()
 export class MailerService {
     private loadTemplate(templateName: string) {
-        const filePath = path.join(__dirname, 'templates', `${templateName}.hbs`);
+        const filePath = path.join(process.cwd(), 'src', 'utils', 'mailer', 'templates', `${templateName}.hbs`);
 
         if (!fs.existsSync(filePath))
             throw new BadRequestException(`Template ${templateName}.hbs not found`)
@@ -35,5 +35,7 @@ export class MailerService {
 
         if (!mailSent)
             throw new BadGatewayException("Email sending failed unexpectedly");
+
+        return mailSent;
     }
 }

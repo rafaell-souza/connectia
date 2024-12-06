@@ -28,13 +28,13 @@ describe("MailerService", () => {
 
     it("should send email with correct data", async () => {
         const mailer = new MailerService();
-        await mailer.send({
+        await expect(mailer.send({
             name: "Miss Agatha",
             email: "example@gmail.com",
             subject: "example",
             token: "example",
             templateName: "verification-email"
-        })
+        })).resolves.toBeTruthy()
 
         expect(transporter.sendMail).toHaveBeenCalledWith(
             expect.objectContaining({

@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Param, Post, Put, Req } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Post, Put, Req } from "@nestjs/common";
 import { SignupUserDto } from "src/dtos/SignupUser";
 import { v4 as uuid } from 'uuid';
 import { AuthService } from "./auth.service";
 import { format } from "date-fns";
 import { SigninUserDto } from "src/dtos/SigninUser.dto";
 import { Request, Response } from "express";
+import { AuthResetPasswordDto } from "src/dtos/AuthResetPassword.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -40,5 +41,30 @@ export class AuthController {
             email: result.email,
             checked: result.checked
         }
+    }
+
+    @Post("signout")
+    @HttpCode(204)
+    async signout(@Req() req: any) {
+        const userId = req.user.id;
+        return await this.authService.signout(userId);
+    }
+
+    @Get("send_verification/:emplate")
+    async sendVerification(
+        @Body() req: Request,
+        @Param("template") template: string
+    ) {
+        const email = req.body.email
+        return await this.authService.sendVerification(email, template)
+    }
+
+    @Put("password-reset")
+    async resetPassword(
+        @Body() dto: AuthResetPasswordDto,
+        @Req() req: any
+    ) {
+        const userId = req.user.id;
+        return await this.authService.resetPassword(userId, dto.newPassword);
     }
 }

@@ -31,13 +31,13 @@ describe("jwtService - methods", () => {
         })
     })
 
-    it("should throw an error while verification", () => {
+    it("should throw if invalid token", () => {
         const refresh = jwtService.createRefreshToken("1");
         expect(() => { jwtService.verifyToken(refresh, process.env.JWT_ACCESS_KEY) })
             .toThrow(UnauthorizedException)
     })
 
-    it("should verify and return an object from token", () => {
+    it("should return an object from token", () => {
         const token = jwtService.createAccessToken("123", "email@gmail.com");
         expect(jwtService.verifyToken(token, process.env.JWT_ACCESS_KEY))
             .toMatchObject({

@@ -1,4 +1,4 @@
-export interface IMailSend {
+export interface IMailerSend {
     name: string;
     email: string;
     token: string;

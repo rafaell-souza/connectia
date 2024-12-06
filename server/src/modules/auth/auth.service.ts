@@ -1,35 +1,48 @@
 import { Injectable } from "@nestjs/common";
-import { JwtService } from "src/utils/jwt/jwt.service";
-import { Hashservice } from "src/utils/hashing/hash.service";
 import { ISignupUser } from "src/interface/ISignupUser";
-import { SignupLocalUseCase } from "src/UseCases/SignupLocalUseCase";
+import { SignupCase } from "src/UseCases/SignupCase.service";
 import { MailerService } from "src/utils/mailer/mailer.service";
+import { ISigninUser } from "src/interface/ISigninUser";
+import { SigninCase } from "src/UseCases/signinCase.service";
+import { VerificationCase } from "src/UseCases/VerificationCase.service";
 
 @Injectable()
 export class AuthService {
     constructor(
-        private jwt: JwtService,
-        private hash: Hashservice,
-        private signupLocalUseCase: SignupLocalUseCase,
-        private mailer: MailerService
+        private mailer: MailerService,
+        private signupCase: SignupCase,
+        private signinCase: SigninCase,
+        private verificationCase: VerificationCase
     ) { }
 
-    async signupLocal(data: ISignupUser): Promise<String> {
-        data.password = this.hash.hashData(data.password);
-
-        const vt = this.jwt.createAccessToken(data.id, data.email);
-        const hashedVt = this.hash.hashData(vt);
-
-        const result = await this.signupLocalUseCase.signupLocal(data, hashedVt);
+    async signupLocal(data: ISignupUser) {
+        const result = await this.signupCase.signupLocal(data);
 
         await this.mailer.send({
             name: `${result.firstName} ${result.lastName}`,
             email: result.email,
             subject: "Email verification",
             templateName: "verification-email",
-            token: vt // verification token
+            token: result.authCache.hashedVt // verification token
         })
 
-        return result.email;
+        return {
+            name: `${result.firstName} ${result.lastName}`,
+            email: result.email,
+            checked: result.checked
+        };
+    }
+
+    async signinLocal(data: ISigninUser) {
+        return await this.signinCase.signinLocal(data);
+    }
+
+    async verificationLocal(userId: string) {
+        const result = await this.verificationCase.verificationLocal(userId);
+        return {
+            name: `${result.firstName} ${result.lastName}`,
+            email: result.email,
+            checked: result.checked
+        }
     }
 }

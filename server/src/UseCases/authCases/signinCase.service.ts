@@ -31,6 +31,6 @@ export class SigninCase {
             data: { hashedRt: hashedRt }
         })
 
-        return access_token;
+        return { access_token, refresh_token };
     }
 }

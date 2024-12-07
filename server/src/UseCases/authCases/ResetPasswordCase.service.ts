@@ -1,6 +1,5 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { Hashservice } from "src/utils/hashing/hash.service";
-import { JwtService } from "src/utils/jwt/jwt.service";
 import { PrismaService } from "src/utils/prisma/prisma.service";
 
 @Injectable()
@@ -12,7 +11,7 @@ export class ResetPasswordCase {
 
     async reset(userId: string, newPassword: string) {
         const hashedPassword = this.hash.hashData(newPassword);
-        
+
         await this.prisma.$transaction([
             this.prisma.user.update({
                 where: { id: userId },

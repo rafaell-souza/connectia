@@ -1,11 +1,13 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Put, Req } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
 import { SignupUserDto } from "src/dtos/SignupUser";
 import { v4 as uuid } from 'uuid';
 import { AuthService } from "./auth.service";
 import { format } from "date-fns";
 import { SigninUserDto } from "src/dtos/SigninUser.dto";
-import { Request, Response } from "express";
 import { AuthResetPasswordDto } from "src/dtos/AuthResetPassword.dto";
+import { BaseAuthGuard } from "src/Guards/BaseAuthGuard.guard";
+import { VerificationGuard } from "src/Guards/VerificationGuard.guard";
+import { RefreshTokenGuard } from "src/Guards/RefreshTokenGuard.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -29,10 +31,22 @@ export class AuthController {
     @Post("local/signin")
     async signinLocal(@Body() dto: SigninUserDto) {
         const token = await this.authService.signinLocal(dto);
-        return { access_token: token }
+        return {
+            access_token: token.access_token,
+            refresh_token: token.refresh_token
+        }
+    }
+
+    @Post("signout")
+    @UseGuards(BaseAuthGuard)
+    @HttpCode(204)
+    async signout(@Req() req: any) {
+        const userId = req.user.id;
+        return await this.authService.signout(userId);
     }
 
     @Put("local/verification")
+    @UseGuards(VerificationGuard)
     async verificationLocal(@Req() req: any) {
         const userId = req.user.id;
         const result = await this.authService.verificationLocal(userId);
@@ -43,28 +57,32 @@ export class AuthController {
         }
     }
 
-    @Post("signout")
-    @HttpCode(204)
-    async signout(@Req() req: any) {
-        const userId = req.user.id;
-        return await this.authService.signout(userId);
-    }
-
-    @Get("send_verification/:emplate")
+    @Get("send_verification/:email/:emplate")
     async sendVerification(
-        @Body() req: Request,
-        @Param("template") template: string
+        @Param("template") template: string,
+        @Param("email") email: string
     ) {
-        const email = req.body.email
         return await this.authService.sendVerification(email, template)
     }
 
     @Put("password-reset")
+    @UseGuards(VerificationGuard)
     async resetPassword(
         @Body() dto: AuthResetPasswordDto,
         @Req() req: any
     ) {
         const userId = req.user.id;
         return await this.authService.resetPassword(userId, dto.newPassword);
+    }
+
+    @Get("refresh-token")
+    @UseGuards(RefreshTokenGuard)
+    async refreshToken(@Body() req: any) {
+        const { userId, email } = req.user
+        const token = await this.authService.refreshToken(userId, email);
+        return {
+            access_token: token.access_token,
+            refresh_token: token.refresh_token
+        };
     }
 }

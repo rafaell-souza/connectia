@@ -1,13 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { ISignupUser } from "src/interface/ISignupUser";
-import { SignupCase } from "src/UseCases/SignupCase.service";
+import { SignupCase } from "src/UseCases/authCases/SignupCase.service";
 import { MailerService } from "src/utils/mailer/mailer.service";
 import { ISigninUser } from "src/interface/ISigninUser";
-import { SigninCase } from "src/UseCases/signinCase.service";
-import { VerificationCase } from "src/UseCases/VerificationCase.service";
-import { SignoutCase } from "src/UseCases/SignoutCase.service";
-import { SendVerificationCase } from "src/UseCases/SendVerificationCase.service";
-import { ResetPasswordCase } from "src/UseCases/ResetPasswordCase.service";
+import { SigninCase } from "src/UseCases/authCases/signinCase.service";
+import { VerificationCase } from "src/UseCases/authCases/VerificationCase.service";
+import { SignoutCase } from "src/UseCases/authCases/SignoutCase.service";
+import { SendVerificationCase } from "src/UseCases/authCases/SendVerificationCase.service";
+import { ResetPasswordCase } from "src/UseCases/authCases/ResetPasswordCase.service";
+import { RefreshTokenCase } from "src/UseCases/authCases/RefreshTokenCase.service";
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,8 @@ export class AuthService {
         private verificationCase: VerificationCase,
         private signoutCase: SignoutCase,
         private sendVerificationCase: SendVerificationCase,
-        private resetPasswordCase: ResetPasswordCase
+        private resetPasswordCase: ResetPasswordCase,
+        private refreshTolenCase: RefreshTokenCase
     ) { }
 
     async signupLocal(data: ISignupUser) {
@@ -69,5 +71,9 @@ export class AuthService {
 
     async resetPassword(userId: string, newPassword: string) {
         return this.resetPasswordCase.reset(userId, newPassword);
+    }
+
+    async refreshToken(userId: string, email: string) {
+        return await this.refreshTolenCase.refresh(userId, email);
     }
 }

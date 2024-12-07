@@ -13,13 +13,14 @@ enum AccountType {
 }
 
 model User {
-  id          String      @id @unique @db.VarChar(36)
-  firstName   String      @db.VarChar(40)
-  lastName    String      @db.VarChar(40)
-  email       String      @unique @db.VarChar(50)
-  password    String?     @db.VarChar(70)
-  checked     Boolean     @default(false)
-  accountType AccountType
+  id           String      @id @unique @db.VarChar(36)
+  firstName    String      @db.VarChar(40)
+  lastName     String      @db.VarChar(40)
+  email        String      @unique @db.VarChar(50)
+  password     String?     @db.VarChar(70)
+  accountType  AccountType
+  lastLogOutAt DateTime?
+  checked      Boolean     @default(false)
 
   profile   Profile?
   authCache AuthCache?

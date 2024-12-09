@@ -27,10 +27,10 @@ export class MailerService {
         })
 
         const mailSent = await transporter.sendMail({
-            from: "Connectia",
+            from: '"Connectia" <noreply@connectia.com>',
             to: data.email,
-            subject: data.subject,
-            html: htmlContent
+            html: htmlContent,
+            subject: "No replay"
         })
 
         if (!mailSent)

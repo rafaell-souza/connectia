@@ -27,7 +27,7 @@ describe("jwtService - methods", () => {
         expect(jwtService.decodeToken(token)).toMatchObject({
             sub: expect.any(String),
             email: expect.any(String),
-            createdAt: expect.any(String)
+            iat: expect.any(Number)
         })
     })
 
@@ -43,7 +43,7 @@ describe("jwtService - methods", () => {
             .toMatchObject({
                 sub: expect.any(String),
                 email: expect.any(String),
-                createdAt: expect.any(String)
+                iat: expect.any(Number)
             })
     })
 })

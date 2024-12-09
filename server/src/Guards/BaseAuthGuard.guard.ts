@@ -16,17 +16,22 @@ export class BaseAuthGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
 
-        const accessToken = request.headers?.authorization.split(" ")[1];
+        const accessToken = request.headers?.authorization?.split(" ")[1];
         if (!accessToken) throw new UnauthorizedException("Access token is missing")
 
         const decoded = this.jwt.verifyToken(accessToken, this.key) as any;
 
-        const user = await this.prisma.user.findUnique(decoded.sub);
+        const user = await this.prisma.user.findUnique({
+            where: { id: decoded.sub }
+        });
+
         if (!user) throw new UnauthorizedException("User not signed up in the system")
 
         if (user.lastLogOutAt) {
-            const old = compareAsc(new Date(user.lastLogOutAt), new Date(decoded.iat));
-            if (old) throw new UnauthorizedException("Your connection was closed");
+            const lastLogOutAt = new Date(user.lastLogOutAt);
+            const iat = new Date(decoded.iat * 1000);
+            const old = compareAsc(lastLogOutAt, iat) === 1;
+            if (old) throw new UnauthorizedException("Unauthorized connection");
         }
 
         request.user = { id: decoded.sub, email: decoded.email };

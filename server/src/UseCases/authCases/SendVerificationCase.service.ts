@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Hashservice } from "src/utils/hashing/hash.service";
 import { JwtService } from "src/utils/jwt/jwt.service";
 import { PrismaService } from "src/utils/prisma/prisma.service";
@@ -11,9 +11,12 @@ export class SendVerificationCase {
         private hash: Hashservice,
     ) { }
 
-    async send(email: string) {
+    async send(email: string, template: string) {
         const user = await this.prisma.user.findUnique({ where: { email } })
         if (!email) throw new NotFoundException(`No user found with: ${email}`);
+
+        if (template.endsWith("-email") && user.checked)
+            throw new BadRequestException("Email already verified");
 
         const newVerificationToken = this.jwt.createVerificationToken(user.id);
         const hashedVt = this.hash.hashData(newVerificationToken);

@@ -11,8 +11,10 @@ export class RefreshTokenCase {
         private jwt: JwtService
     ) { }
 
-    async refresh(userId: string, email: string) {
-        const access_token = this.jwt.createAccessToken(userId, email);
+    async refresh(userId: string) {
+        const user = await this.prisma.user.findFirst({ where: { id: userId } })
+
+        const access_token = this.jwt.createAccessToken(userId, user.email);
         const refresh_token = this.jwt.createRefreshToken(userId);
         const hashedRt = this.hash.hashData(refresh_token);
 

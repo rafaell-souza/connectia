@@ -17,12 +17,15 @@ export class VerificationGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
 
-        const verificationToken = request.headers?.authorization.split(" ")[1];
+        const verificationToken = request.headers?.authorization?.split(" ")[1];
         if (!verificationToken) throw new UnauthorizedException("Verification token is missing")
 
         const decoded = this.jwt.verifyToken(verificationToken, this.key) as any;
 
-        const authCache = await this.prisma.authCache.findUnique(decoded.sub);
+        const authCache = await this.prisma.authCache.findFirst({
+            where: { userId: decoded.sub }
+        });
+
         if (!authCache.hashedVt) throw new UnauthorizedException("Verification token is missing");
 
         const isEqual = this.hash.compareData(verificationToken, authCache.hashedVt);

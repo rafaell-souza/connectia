@@ -1,13 +1,13 @@
 import { Module } from "@nestjs/common";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
-import { SignupCase } from "src/UseCases/authCases/SignupCase.service";
-import { SigninCase } from "src/UseCases/authCases/signinCase.service";
-import { VerificationCase } from "src/UseCases/authCases/VerificationCase.service";
-import { SendVerificationCase } from "src/UseCases/authCases/SendVerificationCase.service";
-import { ResetPasswordCase } from "src/UseCases/authCases/ResetPasswordCase.service";
-import { SignoutCase } from "src/UseCases/authCases/SignoutCase.service";
-import { RefreshTokenCase } from "src/UseCases/authCases/RefreshTokenCase.service";
+import { SignupCase } from "src/UseCases/AuthCases/SignupCase.service";
+import { SigninCase } from "src/UseCases/AuthCases/signinCase.service";
+import { VerificationCase } from "src/UseCases/AuthCases/VerificationCase.service";
+import { SendVerificationCase } from "src/UseCases/AuthCases/SendVerificationCase.service";
+import { ResetPasswordCase } from "src/UseCases/AuthCases/ResetPasswordCase.service";
+import { SignoutCase } from "src/UseCases/AuthCases/SignoutCase.service";
+import { RefreshTokenCase } from "src/UseCases/AuthCases/RefreshTokenCase.service";
 
 @Module({
     controllers: [AuthController],

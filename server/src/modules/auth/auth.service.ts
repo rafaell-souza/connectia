@@ -1,14 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { ISignupUser } from "src/interface/ISignupUser";
-import { SignupCase } from "src/UseCases/authCases/SignupCase.service";
+import { SignupCase } from "src/UseCases/AuthCases/SignupCase.service";
 import { MailerService } from "src/utils/mailer/mailer.service";
 import { ISigninUser } from "src/interface/ISigninUser";
-import { SigninCase } from "src/UseCases/authCases/signinCase.service";
-import { VerificationCase } from "src/UseCases/authCases/VerificationCase.service";
-import { SignoutCase } from "src/UseCases/authCases/SignoutCase.service";
-import { SendVerificationCase } from "src/UseCases/authCases/SendVerificationCase.service";
-import { ResetPasswordCase } from "src/UseCases/authCases/ResetPasswordCase.service";
-import { RefreshTokenCase } from "src/UseCases/authCases/RefreshTokenCase.service";
+import { SigninCase } from "src/UseCases/AuthCases/signinCase.service";
+import { VerificationCase } from "src/UseCases/AuthCases/VerificationCase.service";
+import { SignoutCase } from "src/UseCases/AuthCases/SignoutCase.service";
+import { SendVerificationCase } from "src/UseCases/AuthCases/SendVerificationCase.service";
+import { ResetPasswordCase } from "src/UseCases/AuthCases/ResetPasswordCase.service";
+import { RefreshTokenCase } from "src/UseCases/AuthCases/RefreshTokenCase.service";
 
 @Injectable()
 export class AuthService {
@@ -24,20 +24,19 @@ export class AuthService {
     ) { }
 
     async signupLocal(data: ISignupUser) {
-        const result = await this.signupCase.signupLocal(data);
+        const { newUser, vt } = await this.signupCase.signupLocal(data);
 
         await this.mailer.send({
-            name: `${result.firstName} ${result.lastName}`,
-            email: result.email,
-            subject: "Email verification",
+            name: `${newUser.firstName} ${newUser.lastName}`,
+            email: newUser.email,
             templateName: "verification-email",
-            token: result.authCache.hashedVt // verification token
+            token: vt // verification token
         })
 
         return {
-            name: `${result.firstName} ${result.lastName}`,
-            email: result.email,
-            checked: result.checked
+            name: `${newUser.firstName} ${newUser.lastName}`,
+            email: newUser.email,
+            checked: newUser.checked
         };
     }
 
@@ -59,13 +58,13 @@ export class AuthService {
     }
 
     async sendVerification(email: string, template: string) {
-        const result = await this.sendVerificationCase.send(email);
+        const { user, newVerificationToken } = await this.sendVerificationCase.send(email, template);
+
         await this.mailer.send({
-            name: `${result.user.firstName} ${result.user.lastName}`,
-            email: result.user.email,
+            name: `${user.firstName} ${user.lastName}`,
+            email: user.email,
             templateName: template,
-            token: result.newVerificationToken,
-            subject: "Email verification"
+            token: newVerificationToken
         })
     }
 
@@ -73,7 +72,7 @@ export class AuthService {
         return this.resetPasswordCase.reset(userId, newPassword);
     }
 
-    async refreshToken(userId: string, email: string) {
-        return await this.refreshTolenCase.refresh(userId, email);
+    async refreshToken(userId: string) {
+        return await this.refreshTolenCase.refresh(userId);
     }
 }

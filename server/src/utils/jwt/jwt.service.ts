@@ -15,7 +15,7 @@ export class JwtService {
         return jwt.sign({
             sub: userId,
             email: email,
-            iat: new Date(),
+            iat: Math.floor(Date.now() / 1000),
         }, this.access_key, {
             expiresIn: "30m",
         })
@@ -45,7 +45,7 @@ export class JwtService {
         try {
             return jwt.verify(token, secret);
         } catch (err) {
-            throw new UnauthorizedException("You need a valid access token to access this resource");
+            throw new UnauthorizedException("Jwt token is invalid");
         }
     }
 }

@@ -23,7 +23,7 @@ export class SignupCase {
 
         data.password = this.hash.hashData(data.password);
 
-        const vt = this.jwt.createAccessToken(data.id, data.email);
+        const vt = this.jwt.createVerificationToken(data.id);
         const hashedVt = this.hash.hashData(vt);
 
         const newUser = await this.prisma.user.create({
@@ -43,6 +43,6 @@ export class SignupCase {
             }
         })
 
-        return newUser;
+        return { newUser, vt };
     }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadGatewayException, Injectable } from "@nestjs/common";
 import { Hashservice } from "src/utils/hashing/hash.service";
 import { PrismaService } from "src/utils/prisma/prisma.service";
 
@@ -10,17 +10,23 @@ export class ResetPasswordCase {
     ) { }
 
     async reset(userId: string, newPassword: string) {
-        const hashedPassword = this.hash.hashData(newPassword);
+        return this.prisma.$transaction(async (tx) => {
+            const user = await tx.user.findUnique({ where: { id: userId } });
 
-        await this.prisma.$transaction([
-            this.prisma.user.update({
+            const isEqual = this.hash.compareData(newPassword, user.password);
+            if (isEqual) throw new BadGatewayException("The new password cannot be the same as the previous one");
+
+            const hashedPassword = this.hash.hashData(newPassword);
+
+            await tx.user.update({
                 where: { id: userId },
                 data: { password: hashedPassword }
-            }),
-            this.prisma.authCache.update({
+            })
+            
+            await tx.authCache.update({
                 where: { userId: userId },
                 data: { hashedRt: null }
             })
-        ])
+        })
     }
 }

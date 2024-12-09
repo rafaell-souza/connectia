@@ -3,5 +3,4 @@ export interface IMailerSend {
     email: string;
     token: string;
     templateName: string;
-    subject: string;
 }

@@ -17,12 +17,15 @@ export class RefreshTokenGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
 
-        const refreshToken = request.headers?.authorization.split(" ")[1];
+        const refreshToken = request.headers?.authorization?.split(" ")[1];
         if (!refreshToken) throw new UnauthorizedException("Refresh token is missing")
 
         const decoded = this.jwt.verifyToken(refreshToken, this.key) as any;
 
-        const authCache = await this.prisma.authCache.findUnique(decoded.sub);
+        const authCache = await this.prisma.authCache.findFirst({
+            where: { userId: decoded.sub }
+        });
+
         if (!authCache.hashedRt) throw new UnauthorizedException("Refresh token is missing")
 
         const isEqual = this.hash.compareData(refreshToken, authCache.hashedRt);

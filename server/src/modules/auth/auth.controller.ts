@@ -57,7 +57,7 @@ export class AuthController {
         }
     }
 
-    @Get("send_verification/:email/:emplate")
+    @Get("send_verification/:email/:template")
     async sendVerification(
         @Param("template") template: string,
         @Param("email") email: string
@@ -77,9 +77,9 @@ export class AuthController {
 
     @Get("refresh-token")
     @UseGuards(RefreshTokenGuard)
-    async refreshToken(@Body() req: any) {
-        const { userId, email } = req.user
-        const token = await this.authService.refreshToken(userId, email);
+    async refreshToken(@Req() req: any) {
+        const userId = req.user.id
+        const token = await this.authService.refreshToken(userId);
         return {
             access_token: token.access_token,
             refresh_token: token.refresh_token
